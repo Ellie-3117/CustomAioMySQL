@@ -1,24 +1,53 @@
-# aiomysql_server
+# CustomAioMysql
 
-`aiomysql_server` là một thư viện Python dùng để hỗ trợ kết nối và giao tiếp với cơ sở dữ liệu MySQL một cách bất đồng bộ.
+**CustomAioMysql** là một module tùy chỉnh dựa trên `aiomysql`, được thiết kế để hoạt động tương tự như `sqlite3`, giúp đơn giản hóa việc sử dụng MySQL trong các dự án Python.
 
-## Cài đặt
+## 🚀 Cài đặt
 
-```bash
-pip install aiomysql_server
+Trước tiên, hãy cài đặt các gói cần thiết:
+
+```sh
+pip install aiomysql socket customtkinter
 ```
 
-## Sử dụng
+## 📌 Tính năng
+
+- **Giao diện giống sqlite3**: Dễ dàng chuyển đổi từ `sqlite3` sang MySQL.
+- **Hỗ trợ asyncio**: Tận dụng sức mạnh của `aiomysql` để truy vấn không đồng bộ.
+## 🔧 Cách sử dụng
 
 ```python
-from Server.custom_aiomysql import CustomAioMySql
+import asyncio
+from AioMySql import Database
 
 async def main():
-    mysql = CustomAioMySql()
-    await mysql.connect(host="localhost", port="3306", user="root", password="password", db="test_db")
-    result = await mysql.fetchall("SELECT * FROM users")
-    print(result)
-    await mysql.disconnect()
-```
+    db = await Database.connect(
+        host="localhost",
+        user="root",
+        password="password",
+        database="test_db"
+    )
 
-Xem thêm tại [tài liệu](https://github.com/your_github/aiomysql_server).
+    await db.execute("CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, name TEXT)")
+    await db.execute("INSERT INTO users (name) VALUES (?)", ("Alice",))
+
+    rows = await db.fetchall("SELECT * FROM users")
+    print(rows)
+
+    await db.close()
+asyncio.run(main())
+```
+Bạn có thể xem kỹ hơn với định dạng Database.help()
+## 📜 API
+
+- `Database.connect(...)` - Kết nối tới MySQL.
+- `Database.connected()`-Kết nối lại database được cài đặt trong config
+- `db.execute(query, params)` - Thực thi truy vấn (INSERT, UPDATE, DELETE).
+- `db.fetchone(query, params)` - Lấy một dòng dữ liệu.
+- `db.fetchall(query, params)` - Lấy nhiều dòng dữ liệu.
+- `db.close()` - Đóng kết nối.
+
+## 📄 Giấy phép
+
+Dự án này được phát hành theo giấy phép **MIT**.
+
