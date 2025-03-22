@@ -20,6 +20,8 @@ def install_missing_packages():
 
 install_missing_packages()
 #Tạo 1 trường nhập
+root = tkinter.Tk()
+root.withdraw()
 class CreateConfig(customtkinter.CTkToplevel):
 
     def __init__(self, parent, filepath, title="Cài đặt Database"):
