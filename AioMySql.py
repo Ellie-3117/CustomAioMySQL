@@ -1,27 +1,31 @@
-import customtkinter,asyncio,aiomysql,socket
-from typing import Optional,Tuple,Any,List,Dict
+import customtkinter, asyncio, aiomysql, socket
+from typing import Optional, Tuple, Any, List, Dict
 from configparser import ConfigParser
 from tkinter import messagebox
 import tkinter
-import sys,os
+import sys, os
 import subprocess
-REQUIRED_PACKAGES = [
-    "aiohttp",
-    "customtkinter",
-    "aiomysql"
-]
+
+REQUIRED_PACKAGES = ["aiohttp", "customtkinter", "aiomysql"]
+
+
 def install_missing_packages():
     for package in REQUIRED_PACKAGES:
         try:
             __import__(package)
         except ImportError:
             print(f"Đang cài đặt {package}...")
-            subprocess.run([sys.executable, "-m", "pip", "install", package], check=True)
+            subprocess.run(
+                [sys.executable, "-m", "pip", "install", package], check=True
+            )
+
 
 install_missing_packages()
-#Tạo 1 trường nhập
+# Tạo 1 trường nhập
 root = tkinter.Tk()
 root.withdraw()
+
+
 class CreateConfig(customtkinter.CTkToplevel):
 
     def __init__(self, parent, filepath, title="Cài đặt Database"):
@@ -38,7 +42,7 @@ class CreateConfig(customtkinter.CTkToplevel):
         height = self.winfo_height()
         x = (self.winfo_screenwidth() // 2) - (width // 2)
         y = (self.winfo_screenheight() // 2) - (height // 2)
-        self.geometry(f'+{x}+{y}')
+        self.geometry(f"+{x}+{y}")
 
         self.result: Optional[Dict[str, str]] = None
         self.grab_set()  # tạo modal
@@ -52,8 +56,9 @@ class CreateConfig(customtkinter.CTkToplevel):
         main_frame.pack(padx=20, pady=20, fill="both", expand=True)
 
         # Lưu db?
-        title_label = customtkinter.CTkLabel(main_frame, text="Lưu database",
-                                             font=("Arial", 16, "bold"))
+        title_label = customtkinter.CTkLabel(
+            main_frame, text="Lưu database", font=("Arial", 16, "bold")
+        )
         title_label.pack(pady=(0, 15))
 
         # thm frame nhỏ
@@ -91,11 +96,18 @@ class CreateConfig(customtkinter.CTkToplevel):
         button_frame = customtkinter.CTkFrame(main_frame, fg_color="transparent")
         button_frame.pack(fill="x", pady=(15, 0))
 
-        cancel_button = customtkinter.CTkButton(button_frame, text="Huỷ", command=self._on_cancel, fg_color="gray",
-                                                hover_color="darkgray")
+        cancel_button = customtkinter.CTkButton(
+            button_frame,
+            text="Huỷ",
+            command=self._on_cancel,
+            fg_color="gray",
+            hover_color="darkgray",
+        )
         cancel_button.pack(side="left", padx=10)
 
-        ok_button = customtkinter.CTkButton(button_frame, text="Lưu", command=self._on_ok)
+        ok_button = customtkinter.CTkButton(
+            button_frame, text="Lưu", command=self._on_ok
+        )
         ok_button.pack(side="right", padx=10)
 
     def _on_ok(self):
@@ -103,7 +115,7 @@ class CreateConfig(customtkinter.CTkToplevel):
             "host": self.host_entry.get(),
             "port": self.port_entry.get(),
             "user": self.user_entry.get(),
-            "password": self.password_entry.get()
+            "password": self.password_entry.get(),
         }
 
         # Lưu file
@@ -118,10 +130,10 @@ class CreateConfig(customtkinter.CTkToplevel):
             config.set("database", "password", self.result["password"])
             with open(self.filepath, "w") as configfile:
                 config.write(configfile)
-            messagebox.showinfo('Thành công','Đã lưu thành công database')
+            messagebox.showinfo("Thành công", "Đã lưu thành công database")
 
         except Exception as e:
-            messagebox.showerror('Lỗi',f'Lỗi khi lưu database,{e}')
+            messagebox.showerror("Lỗi", f"Lỗi khi lưu database,{e}")
 
         self.destroy()
 
@@ -132,25 +144,43 @@ class CreateConfig(customtkinter.CTkToplevel):
     def get_input(self) -> Optional[Dict[str, str]]:
         self.wait_window()
         return self.result
+
+
 class Database:
-    def __init__(self,pool:Optional[aiomysql.Pool]=None) -> None:
-        self.pool:aiomysql.Pool=pool              #gọi biến self.pool
+    def __init__(self, pool: Optional[aiomysql.Pool] = None) -> None:
+        self.pool: aiomysql.Pool = pool  # gọi biến self.pool
+
     @staticmethod
-    async def check_internet_connection() -> str:             #kiểm tra kết nối internet
+    async def check_internet_connection() -> str:  # kiểm tra kết nối internet
         try:
-            with socket.create_connection(('youtube.com',80),timeout=5):#kiểm tra kết nối tới youtube cứ mỗi 5ms
+            with socket.create_connection(
+                ("youtube.com", 80), timeout=5
+            ):  # kiểm tra kết nối tới youtube cứ mỗi 5ms
                 pass
         except:
-            return 'Không có kết nối internet hoặc kết nối yếu vui lòng thử lại nhé'
+            return "Không có kết nối internet hoặc kết nối yếu vui lòng thử lại nhé"
         return None
+
     @classmethod
-    async def create_connect(cls,host:str,port:int,user:str,password:str,db:str,minsize:int=1,maxsize:int=10,autocommit:bool=True):  #tạo kết nối db
-        if host!='localhost': #kiểm tra nếu không phải kết nôối local
-            connection=await cls.check_internet_connection()  #lấy str từ kiểm tra check_internet_connection
+    async def create_connect(
+        cls,
+        host: str,
+        port: int,
+        user: str,
+        password: str,
+        db: str,
+        minsize: int = 1,
+        maxsize: int = 10,
+        autocommit: bool = True,
+    ):  # tạo kết nối db
+        if host != "localhost":  # kiểm tra nếu không phải kết nôối local
+            connection = (
+                await cls.check_internet_connection()
+            )  # lấy str từ kiểm tra check_internet_connection
             if connection:
                 raise ConnectionError(connection)
             try:
-                pool=await aiomysql.create_pool(
+                pool = await aiomysql.create_pool(
                     host=host,
                     port=port,
                     user=user,
@@ -159,28 +189,49 @@ class Database:
                     minsize=minsize,
                     maxsize=maxsize,
                     autocommit=autocommit,
-                ) #tạo kết nối tới pool
+                )  # tạo kết nối tới pool
                 return cls(pool=pool)
             except Exception as e:
                 raise e
             except aiomysql.Error as ae:
                 raise ae
-    async def connect(self,host:str,port:int,user:str,password:str,db:str,minsize:int=1,maxsize:int=10,autocommit:bool=True): #hàm connect hoàn chỉnh
-        self.pool = (await self.create_connect(host, port, user, password, db, minsize, maxsize, autocommit)).pool
+
+    async def connect(
+        self,
+        host: str,
+        port: int,
+        user: str,
+        password: str,
+        db: str,
+        minsize: int = 1,
+        maxsize: int = 10,
+        autocommit: bool = True,
+    ):  # hàm connect hoàn chỉnh
+        self.pool = (
+            await self.create_connect(
+                host, port, user, password, db, minsize, maxsize, autocommit
+            )
+        ).pool
         return self
+
     async def close(self):
         self.pool.close()
         await self.pool.wait_closed()
-    async def execute(self,query:str,params:Tuple[Any]=None)->List[Tuple[Any]]:# Thực hiện execute
+
+    async def execute(
+        self, query: str, params: Tuple[Any] = None
+    ) -> List[Tuple[Any]]:  # Thực hiện execute
         if not self.pool:
-            raise Exception('Kết nối database chưa được thiết lập,hãy kết nối với hàm connect/connected')
+            raise Exception(
+                "Kết nối database chưa được thiết lập,hãy kết nối với hàm connect/connected"
+            )
         try:
             async with self.pool.acquire() as connection:
                 con: aiomysql.Connection = connection
                 async with con.cursor() as cursor:
                     cur: aiomysql.Cursor = cursor
                     await cur.execute(query, params)
-                    if query.strip().upper().startswith('SELECT'):
+                    if query.strip().upper().startswith("SELECT"):
                         return await cur.fetchall()
                     else:
                         await con.commit()
@@ -188,35 +239,43 @@ class Database:
         except Exception as e:
             raise e
 
-    async def fetchall(self, query: str, params: Optional[Tuple] = None) -> List:# thực hiện fetch all
-            if not self.pool:
-                raise Exception('Kết nối database chưa được thiết lập,hãy kết nối với hàm connect/connected')
-            try:
-                async with self.pool.acquire() as conn:
-                    connection: aiomysql.Connection = conn
-                    async with connection.cursor() as cur:
-                        cursor: aiomysql.Cursor = cur
-                        await cursor.execute(query, params)
-                        results = await cursor.fetchall()
-                        return results
-            except Exception as e:
-                raise e
+    async def fetchall(
+        self, query: str, params: Optional[Tuple] = None
+    ) -> List:  # thực hiện fetch all
+        if not self.pool:
+            raise Exception(
+                "Kết nối database chưa được thiết lập,hãy kết nối với hàm connect/connected"
+            )
+        try:
+            async with self.pool.acquire() as conn:
+                connection: aiomysql.Connection = conn
+                async with connection.cursor() as cur:
+                    cursor: aiomysql.Cursor = cur
+                    await cursor.execute(query, params)
+                    results = await cursor.fetchall()
+                    return results
+        except Exception as e:
+            raise e
 
-    async def fetchone(self, query: str, params: Optional[Tuple] = None) -> List:# thực hiện fetchone
-            if not self.pool:
-                raise Exception('Kết nối database chưa được thiết lập,hãy kết nối với hàm connect/connected')
-            try:
-                async with self.pool.acquire() as conn:
-                    connection: aiomysql.Connection = conn
-                    async with connection.cursor() as cur:
-                        cursor: aiomysql.Cursor = cur
-                        await cursor.execute(query, params)
-                        results = await cursor.fetchone()
-                        return results
-            except Exception as e:
-                raise e
+    async def fetchone(
+        self, query: str, params: Optional[Tuple] = None
+    ) -> List:  # thực hiện fetchone
+        if not self.pool:
+            raise Exception(
+                "Kết nối database chưa được thiết lập,hãy kết nối với hàm connect/connected"
+            )
+        try:
+            async with self.pool.acquire() as conn:
+                connection: aiomysql.Connection = conn
+                async with connection.cursor() as cur:
+                    cursor: aiomysql.Cursor = cur
+                    await cursor.execute(query, params)
+                    results = await cursor.fetchone()
+                    return results
+        except Exception as e:
+            raise e
 
-    async def load_config(self,file_name:str)->List[Tuple]:#Load config
+    async def load_config(self, file_name: str) -> List[Tuple]:  # Load config
         if not os.path.exists(file_name) or os.path.getsize(file_name) == 0:
             config_data = CreateConfig(None, filepath=file_name).get_input()
             await self.load_config(file_name)
@@ -227,11 +286,14 @@ class Database:
         user = config.get("database", "user")
         password = config.get("database", "password")
         if not host or not user or not password:
-            raise ValueError("Missing one or more required database configuration fields: host, user, or password.")
+            raise ValueError(
+                "Missing one or more required database configuration fields: host, user, or password."
+            )
         return [host, port, user, password]
-    async def connected(self,db:str,file_name:str):
-        data=await self.load_config(file_name=file_name)
-        await self.connect(*data,db=db)
+
+    async def connected(self, db: str, file_name: str):
+        data = await self.load_config(file_name=file_name)
+        await self.connect(*data, db=db)
 
     async def help(self):
         """Hiển thị danh sách các phương thức có sẵn trong Database và cách sử dụng."""

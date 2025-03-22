@@ -12,7 +12,7 @@ pip install aiomysql socket customtkinter
 
 ## 📌 Tính năng
 
-- **Giao diện giống sqlite3**: Dễ dàng chuyển đổi từ `sqlite3` sang MySQL.
+- **Giao diện giống sqlite3**: Custom aiomysql giống sqlite3 để dễ dùng với bất đồng bộ async.
 - **Hỗ trợ asyncio**: Tận dụng sức mạnh của `aiomysql` để truy vấn không đồng bộ.
 ## 🔧 Cách sử dụng
 
@@ -38,7 +38,7 @@ async def main():
 asyncio.run(main())
 ```
 Bạn có thể xem kỹ hơn với định dạng Database.help()
-## 📜 API
+## 📜 Usage
 
 - `Database.connect(...)` - Kết nối tới MySQL.
 - `Database.connected()`-Kết nối lại database được cài đặt trong config
