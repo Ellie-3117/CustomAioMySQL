@@ -38,7 +38,7 @@ async def main():
 asyncio.run(main())
 ```
 Bạn có thể xem kỹ hơn với định dạng Database.help()
-## 📜 API
+## 📜 Usage
 
 - `Database.connect(...)` - Kết nối tới MySQL.
 - `Database.connected()`-Kết nối lại database được cài đặt trong config
