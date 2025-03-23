@@ -18,7 +18,8 @@ pip install aiomysql socket customtkinter
 
 ```python
 import asyncio
-from AioMySql import Database
+from customaiomysql import Database
+
 
 async def main():
     db = await Database.connect(
@@ -35,6 +36,8 @@ async def main():
     print(rows)
 
     await db.close()
+
+
 asyncio.run(main())
 ```
 Bạn có thể xem kỹ hơn với định dạng Database.help()
