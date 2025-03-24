@@ -150,6 +150,28 @@ class Database:
     def __init__(self, pool: Optional[aiomysql.Pool] = None) -> None:
         self.pool: aiomysql.Pool = pool  # gọi biến self.pool
 
+    async def reconnect(
+        self, db: str, file_path: str = None, **kwargs
+    ):  # Thử nghiệm chưa chính thức
+        if self.pool is not None:
+            await self.close()
+        if file_path:
+            data = await self.load_config(file_path)
+        else:
+            # Lấy dữ liệu từ kwargs
+            host = kwargs.get("host")
+            port = kwargs.get("port", 3306)
+            user = kwargs.get("user")
+            password = kwargs.get("password")
+
+            if not all([host, user, password]):
+                raise ValueError("Thiếu thông tin host, user hoặc password để kết nối!")
+
+            data = [host, port, user, password]
+
+        await self.connect(*data, db=db)
+        print("Đã kết nối trở lại database")
+
     @staticmethod
     async def check_internet_connection() -> str:  # kiểm tra kết nối internet
         try:
@@ -306,6 +328,40 @@ class Database:
         - **execute(query: str, params: Tuple[Any] = None)**: Thực thi câu lệnh SQL (INSERT, UPDATE, DELETE, SELECT).
         - **fetchall(query: str, params: Optional[Tuple] = None)**: Lấy tất cả kết quả từ truy vấn.
         - **fetchone(query: str, params: Optional[Tuple] = None)**: Lấy một dòng dữ liệu từ truy vấn.
-        ❗ Lưu ý: Trước khi sử dụng, hãy gọi `await database.connected("database_name", "config.cfg")`
+        - **executemany (query: str, params: List[Tuple])**: Thực thi nhiều câu lệnh SQL cùng lúc.
+        ❗ Lưu ý: Trước khi sử dụng, hãy gọi `await database.connected("database_name", "config.cfg") nếu dùng connect`
         """
         print(help_text)
+
+    async def executemany(self, query: str, params: List[Tuple]):
+        if not self.pool:
+            raise Exception(
+                "Kết nối database chưa được thiết lập,hãy kết nối với hàm connect/connected"
+            )
+        try:
+            async with self.pool.acquire() as connection:
+                con: aiomysql.Connection = connection
+                async with con.cursor() as cursor:
+                    cur: aiomysql.Cursor = cursor
+                    await cur.executemany(query, params)
+
+                    await con.commit()
+                    return cur.rowcount
+        except Exception as e:
+            raise e
+
+    async def fetchmany(self, query: str, params: List[Tuple], size: int = 100):
+        if not self.pool:
+            raise Exception(
+                "Kết nối database chưa được thiết lập,hãy kết nối với hàm connect/connected"
+            )
+        try:
+            async with self.pool.acquire() as conn:
+                connection: aiomysql.Connection = conn
+                async with connection.cursor() as cursor:
+                    cur: aiomysql.Cursor = cursor
+                    await cur.execute(query, params)
+                    results = await cur.fetchmany(size)
+                    return results
+        except Exception as e:
+            raise e

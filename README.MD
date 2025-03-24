@@ -20,8 +20,9 @@ pip install aiomysql socket customtkinter
 import asyncio
 from customaiomysql import Database
 
-
+#Trong trường hợp bạn chỉ trở tới 1 cơ sở dữ liệu để kết nôối
 async def main():
+    
     db = await Database.connect(
         host="localhost",
         user="root",
@@ -54,3 +55,5 @@ Bạn có thể xem kỹ hơn với định dạng Database.help()
 
 Dự án này được phát hành theo giấy phép **MIT**.
 
+## Lưu ý nhỏ
+đối với hàm connected vui lòng nhập chính xác từng phần và đừng cố tắt nó đi nhé :))
