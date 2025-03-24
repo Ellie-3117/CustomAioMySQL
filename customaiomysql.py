@@ -329,6 +329,7 @@ class Database:
         - **fetchall(query: str, params: Optional[Tuple] = None)**: Lấy tất cả kết quả từ truy vấn.
         - **fetchone(query: str, params: Optional[Tuple] = None)**: Lấy một dòng dữ liệu từ truy vấn.
         - **executemany (query: str, params: List[Tuple])**: Thực thi nhiều câu lệnh SQL cùng lúc.
+        - **fetchmany(query: str, params: List[Tuple], size: int = 100)**: Lấy nhiều dòng dữ liệu từ truy vấn.
         ❗ Lưu ý: Trước khi sử dụng, hãy gọi `await database.connected("database_name", "config.cfg") nếu dùng connect`
         """
         print(help_text)
